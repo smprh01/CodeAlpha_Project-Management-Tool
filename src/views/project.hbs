@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{project.title}}</title>
+  <style>
+/* ==== Global Styles ==== */
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f2f5;
+  color: #333;
+  padding: 20px;
+}
+
+/* Page heading */
+h1 {
+  text-align: center;
+  font-size: 34px;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: #2d3436;
+}
+
+p {
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 28px;
+  color: #636e72;
+}
+
+/* ==== Board container ==== */
+#board {
+  display: flex;
+  justify-content: center;   /* center the lists */
+  gap: 30px;                 /* equal gap between them */
+  flex-wrap: wrap;           /* wrap nicely on smaller screens */
+  padding: 20px 0;
+  overflow-x: hidden;      
+}
+
+
+/* ==== List container ==== */
+.list {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  min-width: 280px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.list:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+}
+
+/* List heading */
+.list h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0984e3;
+  text-align: center;
+  border-bottom: 2px solid #e6e9ed;
+  padding-bottom: 6px;
+}
+
+/* ==== Task list ==== */
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ==== Task item ==== */
+li {
+  background: #f9fafc;
+  padding: 12px 14px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  border: 1px solid #e0e4eb;
+  transition: box-shadow 0.25s, transform 0.2s;
+}
+
+li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+li small {
+  color: #6c757d;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ==== Comments inside task ==== */
+li p {
+  margin: 0;
+  font-size: 13px;
+  color: #2d3436;
+  background: #eef3f8;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+/* ==== Comment form ==== */
+li form {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+li form input[type="text"] {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #dcdde1;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+li form input[type="text"]:focus {
+  outline: none;
+  border-color: #74b9ff;
+  box-shadow: 0 0 0 2px rgba(116,185,255,0.2);
+}
+
+li form button {
+  padding: 6px 10px;
+  border: none;
+  background: #0984e3;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.25s;
+}
+
+li form button:hover {
+  background: #0652dd;
+}
+
+/* ==== Add task form ==== */
+.list form {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.list form input[type="text"] {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid #dcdde1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.list form input[type="text"]:focus {
+  outline: none;
+  border-color: #00b894;
+  box-shadow: 0 0 0 2px rgba(0,184,148,0.2);
+}
+
+.list form button {
+  padding: 9px 12px;
+  background: #00b894;
+  color: #fff;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+
+.list form button:hover {
+  background: #019875;
+}
+
+/* ==== Scrollbar ==== */
+#board::-webkit-scrollbar {
+  height: 8px;
+}
+#board::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.25);
+  border-radius: 4px;
+}
+#board::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 768px) {
+  #board {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .list {
+    width: 92%;
+    min-width: auto;
+  }
+}
+</style>
+
+</head>
+<body>
+  <h1>{{project.title}}</h1>
+  <p>{{project.description}}</p>
+
+  <div id="board">
+    {{#each project.lists}}
+      <div class="list">
+        <h3>{{this.name}}</h3>
+        
+        <ul id="list-{{this.name}}">
+          {{#each ../tasks}}
+            {{#if (eq this.listName ../this.name)}}
+              <li data-taskid="{{this._id}}">
+                {{this.title}}
+                {{#if this.assignee}}
+                  <small>({{this.assignee.name}})</small>
+                {{/if}}
+                <form action="/tasks/{{this._id}}/comments" method="POST">
+                  <input type="text" name="text" placeholder="Add comment">
+                  <button type="submit">💬</button>
+                </form>
+              </li>
+            {{/if}}
+          {{/each}}
+        </ul>
+
+        <!-- Add task form -->
+        <form action="/tasks/create" method="POST">
+          <input type="hidden" name="projectId" value="{{../project._id}}">
+          <input type="hidden" name="listName" value="{{this.name}}">
+          <input type="text" name="title" placeholder="New task">
+          <button type="submit">Add</button>
+        </form>
+      </div>
+    {{/each}}
+  </div>
+
+  <!-- Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Join the project room
+    socket.emit("joinProject", "{{project._id}}");
+
+    // When a new task is created
+    socket.on("taskCreated", (data) => {
+      const list = document.getElementById("list-" + data.listName);
+      if (list) {
+        const li = document.createElement("li");
+        li.dataset.taskid = data.taskId;
+        li.innerHTML = `
+          ${data.title}
+          <form action="/tasks/${data.taskId}/comments" method="POST">
+            <input type="text" name="text" placeholder="Add comment">
+            <button type="submit">💬</button>
+          </form>
+        `;
+        list.appendChild(li);
+      }
+    });
+
+    // When a task is moved
+    socket.on("taskMoved", (data) => {
+      const taskEl = document.querySelector("[data-taskid='" + data.taskId + "']");
+      if (taskEl) {
+        const newList = document.getElementById("list-" + data.listName);
+        if (newList) {
+          newList.appendChild(taskEl);
+        }
+      }
+    });
+
+    // When a new comment is added
+    socket.on("commentAdded", (data) => {
+      const taskEl = document.querySelector("[data-taskid='" + data.taskId + "']");
+      if (taskEl) {
+        const p = document.createElement("p");
+        p.textContent = data.comment.text;
+        taskEl.appendChild(p);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>PM Tool</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <nav>
+    {{#if currentUser}}
+      <span>Welcome {{currentUser.name}}</span>
+      <form method="post" action="/auth/logout" style="display:inline"><button type="submit">Logout</button></form>
+    {{/if}}
+  </nav>
+  {{{body}}}
+  <script src="/js/main.js"></script>
+</body>
+</html>
